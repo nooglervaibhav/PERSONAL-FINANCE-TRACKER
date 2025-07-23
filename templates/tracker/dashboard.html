@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Personal Finance Dashboard</title>
+    <!-- Load the CSS via Django static tag -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'tracker/styles.css' %}">
+    <!-- Load Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>Personal Finance Tracker</h1>
+
+    <div class="summary">
+        <h2>Total Income: ₹{{ total_income }}</h2>
+        <h2>Total Expense: ₹{{ total_expense }}</h2>
+        <h2>Balance: ₹{{ total_income|floatformat:2|add:"-"|add:total_expense|floatformat:2 }}</h2>
+    </div>
+
+    <div class="forms">
+        <form method="post" action="{% url 'add_income' %}">
+            {% csrf_token %}
+            <h3>Add Income</h3>
+            {{ income_form.as_p }}
+            <button type="submit">Add Income</button>
+        </form>
+
+        <form method="post" action="{% url 'add_expense' %}">
+            {% csrf_token %}
+            <h3>Add Expense</h3>
+            {{ expense_form.as_p }}
+            <button type="submit">Add Expense</button>
+        </form>
+    </div>
+
+    <form method="post" action="{% url 'reset_data' %}">
+        {% csrf_token %}
+        <button class="reset-btn" type="submit">Reset All</button>
+    </form>
+
+    <!-- Chart Container -->
+    <div class="chart">
+        <canvas id="financeChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Load data from Django context to JS -->
+<script>
+    const chartLabels = {{ chart_labels|safe }};
+    const incomeData = {{ income_data|safe }};
+    const expenseData = {{ expense_data|safe }};
+</script>
+
+<!-- Link your dashboard.js file -->
+<script src="{% static 'tracker/dashboard.js' %}"></script>
+</body>
+</html>
